@@ -35,12 +35,23 @@ const AGE_BANDS = [
 ];
 
 const COUNTRIES = [
-  { country: 'Portugal', essential: '30 days home-country stay', complete: 'covered' },
-  { country: 'Thailand', essential: 'available for trip stays', complete: 'available' },
-  { country: 'Mexico', essential: 'available for trip stays', complete: 'available' },
-  { country: 'Japan', essential: 'available for trip stays', complete: 'available' },
-  { country: 'Spain', essential: 'available for trip stays', complete: 'available' },
-  { country: 'Indonesia', essential: 'available for trip stays', complete: 'available' }
+  ['🇦🇱', 'Albania'], ['🇦🇩', 'Andorra'], ['🇦🇷', 'Argentina'], ['🇦🇺', 'Australia'],
+  ['🇦🇹', 'Austria'], ['🇧🇸', 'Bahamas'], ['🇧🇪', 'Belgium'], ['🇧🇷', 'Brazil'],
+  ['🇧🇬', 'Bulgaria'], ['🇨🇦', 'Canada'], ['🇨🇱', 'Chile'], ['🇨🇴', 'Colombia'],
+  ['🇨🇷', 'Costa Rica'], ['🇭🇷', 'Croatia'], ['🇨🇾', 'Cyprus'], ['🇨🇿', 'Czechia'],
+  ['🇩🇰', 'Denmark'], ['🇩🇴', 'Dominican Republic'], ['🇪🇨', 'Ecuador'], ['🇪🇪', 'Estonia'],
+  ['🇫🇮', 'Finland'], ['🇫🇷', 'France'], ['🇬🇪', 'Georgia'], ['🇩🇪', 'Germany'],
+  ['🇬🇷', 'Greece'], ['🇭🇰', 'Hong Kong'], ['🇭🇺', 'Hungary'], ['🇮🇸', 'Iceland'],
+  ['🇮🇩', 'Indonesia'], ['🇮🇪', 'Ireland'], ['🇮🇱', 'Israel'], ['🇮🇹', 'Italy'],
+  ['🇯🇵', 'Japan'], ['🇰🇷', 'South Korea'], ['🇱🇻', 'Latvia'], ['🇱🇹', 'Lithuania'],
+  ['🇱🇺', 'Luxembourg'], ['🇲🇹', 'Malta'], ['🇲🇽', 'Mexico'], ['🇲🇪', 'Montenegro'],
+  ['🇲🇦', 'Morocco'], ['🇳🇱', 'Netherlands'], ['🇳🇿', 'New Zealand'], ['🇳🇴', 'Norway'],
+  ['🇵🇦', 'Panama'], ['🇵🇪', 'Peru'], ['🇵🇭', 'Philippines'], ['🇵🇱', 'Poland'],
+  ['🇵🇹', 'Portugal'], ['🇷🇴', 'Romania'], ['🇷🇸', 'Serbia'], ['🇸🇬', 'Singapore'],
+  ['🇸🇰', 'Slovakia'], ['🇸🇮', 'Slovenia'], ['🇿🇦', 'South Africa'], ['🇪🇸', 'Spain'],
+  ['🇸🇪', 'Sweden'], ['🇨🇭', 'Switzerland'], ['🇹🇼', 'Taiwan'], ['🇹🇭', 'Thailand'],
+  ['🇹🇷', 'Turkey'], ['🇦🇪', 'United Arab Emirates'], ['🇬🇧', 'United Kingdom'],
+  ['🇺🇸', 'United States'], ['🇺🇾', 'Uruguay'], ['🇻🇳', 'Vietnam']
 ];
 
 function defaultState() {
@@ -147,52 +158,27 @@ function navigationButtons(state, options) {
   const current = clampStep(state.step);
   const nextLabel = options && options.nextLabel ? options.nextLabel : 'Next';
   const previous = current > 1
-    ? [stateButton(state, 'Previous', { step: current - 1 }, 'secondary')]
+    ? [stateButton(state, '← Previous', { step: current - 1 }, 'secondary')]
     : [];
   const next = current < 5
     ? [stateButton(state, nextLabel, { step: current + 1 }, 'primary')]
     : [];
-  return previous.concat(next);
-}
-
-function renderStepPicker(state) {
   return {
-    type: 'section',
-    title: 'Insurance order',
-    description: 'Follow the steps to prepare SafetyWing coverage, then prefill the Wall Money transfer.',
-    children: [
-      {
-        type: 'list',
-        items: [
-          { label: '1. Select plan', value: state.step === 1 ? 'current' : 'ready' },
-          { label: '2. Countries', value: state.step === 2 ? 'current' : state.step > 2 ? 'ready' : 'next' },
-          { label: '3. Account details', value: state.step === 3 ? 'current' : state.step > 3 ? 'ready' : 'next' },
-          { label: '4. Payment transfer', value: state.step === 4 ? 'current' : state.step > 4 ? 'ready' : 'next' },
-          { label: '5. Active info panel', value: state.status === 'active' ? 'active' : 'pending' }
-        ]
-      }
-    ]
+    type: 'buttonRow',
+    buttons: previous.concat(next)
   };
 }
 
-function renderCurrentSummary(state) {
+function summaryList(state) {
   const plan = PLANS[state.plan];
   const price = priceFor(state);
   return {
-    type: 'section',
-    title: 'Current selection',
-    description: 'Your order draft updates as you move through the flow.',
-    children: [
-      {
-        type: 'list',
-        items: [
-          { label: 'Plan', value: plan.name },
-          { label: 'Age', value: ageConfig(state).label },
-          { label: 'Billing', value: periodFor(state) },
-          { label: 'Cost', value: `${formatMoney(price)} / ${periodFor(state)}` },
-          { label: 'Status', value: state.status.replace(/_/g, ' ') }
-        ]
-      }
+    type: 'list',
+    items: [
+      { label: '🛡️ Plan', value: plan.name },
+      { label: '🎂 Age', value: ageConfig(state).label },
+      { label: '🔁 Billing', value: periodFor(state) },
+      { label: '💵 Cost', value: `${formatMoney(price)} / ${periodFor(state)}` }
     ]
   };
 }
@@ -202,40 +188,73 @@ function renderPlanSelection(state) {
   const price = priceFor(state);
   return {
     type: 'section',
-    title: 'Step 1: Select plan and age',
-    description: 'Choose a plan, age band, and billing period. The Complete plan is monthly or yearly with a 12 month commitment.',
+    title: '🧭 Step 1: Choose your cover',
+    description: 'Pick the plan, age band, and billing period. Complete can bill monthly or yearly, with a 12 month commitment.',
     children: [
       {
-        type: 'stack',
-        gap: 'md',
-        children: [
+        type: 'stat',
+        label: 'Total cost in USD',
+        value: `${formatMoney(price)} / ${periodFor(state)}`,
+        helper: `${plan.coverageLimit} coverage limit • ${plan.countries}`
+      },
+      {
+        type: 'choiceGroup',
+        columns: 'two',
+        options: [
           {
-            type: 'list',
-            items: [
-              { label: 'Selected plan', value: plan.name },
-              { label: 'Coverage limit', value: plan.coverageLimit },
-              { label: 'Geographic coverage', value: plan.countries },
-              { label: 'Coverage at home', value: plan.homeCoverage },
-              { label: 'Selected age', value: ageConfig(state).label },
-              { label: 'Total cost in USD', value: `${formatMoney(price)} / ${periodFor(state)}` }
-            ]
+            icon: '🩹',
+            label: 'Essential',
+            value: '$62.72 / 4 weeks from age 10-39',
+            helper: 'Travel medical insurance for new and unexpected issues abroad.',
+            selected: state.plan === 'essential',
+            action: stateAction(state, { plan: 'essential', term: '4w' })
           },
-          stateButton(state, 'Use Essential', { plan: 'essential', term: '4w' }, state.plan === 'essential' ? 'primary' : 'secondary'),
-          stateButton(state, 'Use Complete', { plan: 'complete', term: 'monthly' }, state.plan === 'complete' ? 'primary' : 'secondary'),
-          ...AGE_BANDS.map((age) => ({
-            type: 'button',
-            label: `Age ${age.label}`,
-            variant: state.age === age.id ? 'primary' : 'ghost',
-            action: stateAction(state, { age: age.id })
-          })),
-          ...availableTerms(state).map((term) => ({
-            type: 'button',
-            label: term.helper ? `${term.label} (${term.helper})` : term.label,
-            variant: state.term === term.id ? 'primary' : 'secondary',
-            action: stateAction(state, { term: term.id })
-          })),
-          { type: 'button', label: `What ${plan.shortName} covers`, variant: 'ghost', action: { type: 'navigate', href: plan.officialUrl } },
-          ...navigationButtons(state, { nextLabel: 'Continue to countries' })
+          {
+            icon: '🛡️',
+            label: 'Complete',
+            value: '$177.50 / month from age 10-39',
+            helper: 'Full health cover with routine care, wellness support, and travel protections.',
+            selected: state.plan === 'complete',
+            action: stateAction(state, { plan: 'complete', term: 'monthly' })
+          }
+        ]
+      },
+      {
+        type: 'choiceGroup',
+        columns: 'five',
+        options: AGE_BANDS.map((age) => ({
+          icon: '🎂',
+          label: age.label,
+          value: state.plan === 'essential' ? `${formatMoney(age.essential4w)} / 4 weeks` : `${formatMoney(age.completeMonth)} / month`,
+          selected: state.age === age.id,
+          action: stateAction(state, { age: age.id })
+        }))
+      },
+      {
+        type: 'choiceGroup',
+        columns: state.plan === 'essential' ? 'two' : 'two',
+        options: availableTerms(state).map((term) => ({
+          icon: term.id === '364d' || term.id === 'yearly' ? '📅' : '🔁',
+          label: term.label,
+          badge: term.helper,
+          value: term.helper || (state.plan === 'complete' ? '12 month commitment' : 'Flexible coverage'),
+          selected: state.term === term.id,
+          action: stateAction(state, { term: term.id })
+        }))
+      },
+      {
+        type: 'list',
+        items: [
+          { label: '🌍 Geographic coverage', value: plan.countries },
+          { label: '🏠 Coverage at home', value: plan.homeCoverage },
+          { label: '📌 Selected age', value: ageConfig(state).label }
+        ]
+      },
+      {
+        type: 'buttonRow',
+        buttons: [
+          { label: `What ${plan.shortName} covers`, variant: 'secondary', action: { type: 'navigate', href: plan.officialUrl } },
+          ...navigationButtons(state, { nextLabel: 'Continue to countries →' }).buttons
         ]
       }
     ]
@@ -243,20 +262,31 @@ function renderPlanSelection(state) {
 }
 
 function renderCountries(state) {
+  const plan = PLANS[state.plan];
+  const stayLimit = state.plan === 'essential'
+    ? 'Essential: up to 30 days home-country stay per 90 days of cover (15 days for US).'
+    : 'Complete: country of residence is fully covered, subject to plan terms.';
   return {
     type: 'section',
-    title: 'Step 2: Countries and stay limits',
-    description: 'Review sample availability here and open the SafetyWing map for the full country list.',
+    title: '🌍 Step 2: Countries and stay limits',
+    description: `${plan.shortName} is shown with the country availability list and stay rule. Open the map for the official live SafetyWing view.`,
     children: [
+      summaryList(state),
+      { type: 'text', text: stayLimit, tone: 'success' },
       {
         type: 'list',
-        items: COUNTRIES.map((entry) => ({
-          label: entry.country,
-          value: state.plan === 'essential' ? entry.essential : entry.complete
+        items: COUNTRIES.map(([flag, country]) => ({
+          label: `${flag} ${country}`,
+          value: state.plan === 'essential' ? 'available' : 'covered'
         }))
       },
-      { type: 'button', label: 'Open country map', variant: 'secondary', action: { type: 'navigate', href: COUNTRY_MAP_URL } },
-      ...navigationButtons(state, { nextLabel: 'Continue to account details' })
+      {
+        type: 'buttonRow',
+        buttons: [
+          { label: 'Open country map', variant: 'secondary', action: { type: 'navigate', href: COUNTRY_MAP_URL } },
+          ...navigationButtons(state, { nextLabel: 'Continue to account details →' }).buttons
+        ]
+      }
     ]
   };
 }
@@ -264,9 +294,10 @@ function renderCountries(state) {
 function renderAccountDetails(state) {
   return {
     type: 'section',
-    title: 'Step 3: Account details',
+    title: '👤 Step 3: Account details',
     description: 'Enter the member details that will be sent to the SafetyWing order API when the integration is connected.',
     children: [
+      summaryList(state),
       {
         type: 'form',
         fields: [
@@ -277,7 +308,7 @@ function renderAccountDetails(state) {
         submitLabel: 'Save details',
         action: stateAction(state, { step: 4 }, 'Details saved')
       },
-      ...navigationButtons(state, { nextLabel: 'Continue to transfer' })
+      navigationButtons(state, { nextLabel: 'Continue to transfer →' })
     ]
   };
 }
@@ -287,38 +318,42 @@ function renderPayment(state) {
   const price = priceFor(state);
   return {
     type: 'section',
-    title: 'Step 4: Prefill payment in Wall Money',
+    title: '💳 Step 4: Prefill payment in Wall Money',
     description: 'The transfer is prepared in Wall Money so the portal can record the payment result and return you to this plugin.',
     children: [
+      summaryList(state),
       {
         type: 'list',
         items: [
-          { label: 'Plan', value: plan.name },
-          { label: 'Billing', value: periodFor(state) },
-          { label: 'Amount', value: formatMoney(price) },
-          { label: 'Reference', value: `${plan.reference}-${state.term}` }
+          { label: '🧾 Reference', value: `${plan.reference}-${state.term}` },
+          { label: '👤 Member', value: state.member.name || 'Not entered yet' },
+          { label: '📧 Email', value: state.member.email || 'Not entered yet' }
         ]
       },
       {
-        type: 'button',
-        label: 'Prefill transfer',
-        action: {
-          type: 'payment',
-          request: {
-            label: `${plan.name} ${periodFor(state)}`,
-            amount: price.toFixed(2),
-            reference: `${plan.reference}-${state.term}`,
-            portalTransfer: {
-              account: 'safetywing',
-              currency: 'USD',
-              amount: price.toFixed(2),
-              platform: 'platform',
-              recurring: state.plan === 'complete' || state.term === '4w' ? 'monthly' : undefined
+        type: 'buttonRow',
+        buttons: [
+          {
+            label: 'Prefill transfer',
+            action: {
+              type: 'payment',
+              request: {
+                label: `${plan.name} ${periodFor(state)}`,
+                amount: price.toFixed(2),
+                reference: `${plan.reference}-${state.term}`,
+                portalTransfer: {
+                  account: 'safetywing',
+                  currency: 'USD',
+                  amount: price.toFixed(2),
+                  platform: 'platform',
+                  recurring: state.plan === 'complete' || state.term === '4w' ? 'monthly' : undefined
+                }
+              }
             }
-          }
-        }
-      },
-      ...navigationButtons(state, { nextLabel: 'Review status' })
+          },
+          ...navigationButtons(state, { nextLabel: 'Review status →' }).buttons
+        ]
+      }
     ]
   };
 }
@@ -328,20 +363,20 @@ function renderActivity(state) {
   const price = priceFor(state);
   return {
     type: 'section',
-    title: state.status === 'active' ? 'Step 5: Active insurance' : 'Latest insurance activity',
+    title: state.status === 'active' ? '✅ Step 5: Active insurance' : '📋 Step 5: Insurance status',
     description: 'This is the local status shown in the portal info panel after a plan is prepared or paid.',
     children: [
+      summaryList(state),
       {
         type: 'list',
         items: [
-          { label: 'Status', value: state.status.replace(/_/g, ' ') },
-          { label: 'Plan', value: plan.name },
-          { label: 'Age', value: ageConfig(state).label },
-          { label: 'Cost', value: `${formatMoney(price)} / ${periodFor(state)}` },
-          { label: 'Updated', value: state.updatedAt || 'Not started yet' }
+          { label: '📌 Status', value: state.status.replace(/_/g, ' ') },
+          { label: '🛡️ Plan', value: plan.name },
+          { label: '💵 Cost', value: `${formatMoney(price)} / ${periodFor(state)}` },
+          { label: '🕒 Updated', value: state.updatedAt || 'Not started yet' }
         ]
       },
-      ...navigationButtons(state)
+      navigationButtons(state)
     ]
   };
 }
@@ -379,8 +414,6 @@ module.exports = {
             type: 'stack',
             gap: 'lg',
             children: [
-              renderStepPicker(state),
-              renderCurrentSummary(state),
               renderCurrentStep(state)
             ]
           }
