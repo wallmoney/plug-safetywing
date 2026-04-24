@@ -59,8 +59,15 @@ function defaultState() {
   };
 }
 
+function clampStep(value) {
+  const n = Number(value);
+  if (!Number.isFinite(n)) return 1;
+  return Math.max(1, Math.min(5, Math.round(n)));
+}
+
 function normalizeState(raw) {
   return Object.assign(defaultState(), raw || {}, {
+    step: clampStep(raw && raw.step),
     member: Object.assign(defaultState().member, raw && raw.member ? raw.member : {})
   });
 }
@@ -136,6 +143,18 @@ function stateButton(state, label, patch, variant, message) {
   };
 }
 
+function navigationButtons(state, options) {
+  const current = clampStep(state.step);
+  const nextLabel = options && options.nextLabel ? options.nextLabel : 'Next';
+  const previous = current > 1
+    ? [stateButton(state, 'Previous', { step: current - 1 }, 'secondary')]
+    : [];
+  const next = current < 5
+    ? [stateButton(state, nextLabel, { step: current + 1 }, 'primary')]
+    : [];
+  return previous.concat(next);
+}
+
 function renderStepPicker(state) {
   return {
     type: 'section',
@@ -150,6 +169,28 @@ function renderStepPicker(state) {
           { label: '3. Account details', value: state.step === 3 ? 'current' : state.step > 3 ? 'ready' : 'next' },
           { label: '4. Payment transfer', value: state.step === 4 ? 'current' : state.step > 4 ? 'ready' : 'next' },
           { label: '5. Active info panel', value: state.status === 'active' ? 'active' : 'pending' }
+        ]
+      }
+    ]
+  };
+}
+
+function renderCurrentSummary(state) {
+  const plan = PLANS[state.plan];
+  const price = priceFor(state);
+  return {
+    type: 'section',
+    title: 'Current selection',
+    description: 'Your order draft updates as you move through the flow.',
+    children: [
+      {
+        type: 'list',
+        items: [
+          { label: 'Plan', value: plan.name },
+          { label: 'Age', value: ageConfig(state).label },
+          { label: 'Billing', value: periodFor(state) },
+          { label: 'Cost', value: `${formatMoney(price)} / ${periodFor(state)}` },
+          { label: 'Status', value: state.status.replace(/_/g, ' ') }
         ]
       }
     ]
@@ -194,7 +235,7 @@ function renderPlanSelection(state) {
             action: stateAction(state, { term: term.id })
           })),
           { type: 'button', label: `What ${plan.shortName} covers`, variant: 'ghost', action: { type: 'navigate', href: plan.officialUrl } },
-          stateButton(state, 'Continue to countries', { step: 2 }, 'primary')
+          ...navigationButtons(state, { nextLabel: 'Continue to countries' })
         ]
       }
     ]
@@ -215,7 +256,7 @@ function renderCountries(state) {
         }))
       },
       { type: 'button', label: 'Open country map', variant: 'secondary', action: { type: 'navigate', href: COUNTRY_MAP_URL } },
-      stateButton(state, 'Continue to account details', { step: 3 }, 'primary')
+      ...navigationButtons(state, { nextLabel: 'Continue to account details' })
     ]
   };
 }
@@ -236,7 +277,7 @@ function renderAccountDetails(state) {
         submitLabel: 'Save details',
         action: stateAction(state, { step: 4 }, 'Details saved')
       },
-      stateButton(state, 'Continue to transfer', { step: 4 }, 'secondary')
+      ...navigationButtons(state, { nextLabel: 'Continue to transfer' })
     ]
   };
 }
@@ -276,7 +317,8 @@ function renderPayment(state) {
             }
           }
         }
-      }
+      },
+      ...navigationButtons(state, { nextLabel: 'Review status' })
     ]
   };
 }
@@ -298,9 +340,18 @@ function renderActivity(state) {
           { label: 'Cost', value: `${formatMoney(price)} / ${periodFor(state)}` },
           { label: 'Updated', value: state.updatedAt || 'Not started yet' }
         ]
-      }
+      },
+      ...navigationButtons(state)
     ]
   };
+}
+
+function renderCurrentStep(state) {
+  if (state.step === 1) return renderPlanSelection(state);
+  if (state.step === 2) return renderCountries(state);
+  if (state.step === 3) return renderAccountDetails(state);
+  if (state.step === 4) return renderPayment(state);
+  return renderActivity(state);
 }
 
 module.exports = {
@@ -329,11 +380,8 @@ module.exports = {
             gap: 'lg',
             children: [
               renderStepPicker(state),
-              renderPlanSelection(state),
-              renderCountries(state),
-              renderAccountDetails(state),
-              renderPayment(state),
-              renderActivity(state)
+              renderCurrentSummary(state),
+              renderCurrentStep(state)
             ]
           }
         ]
