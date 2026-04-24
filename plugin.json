@@ -15,12 +15,19 @@
   "entry": "default",
   "mota": {
     "infopanel": {
-      "description": "Open the plugin to review coverage details, countries, member details, and your latest insurance activity.",
+      "description": "Choose coverage, check country availability, and pay from Wall Money.",
       "primary": {
-        "label": "Open plugin",
+        "label": "Manage cover",
         "action": {
           "type": "navigate",
           "href": "/marketplace/wallmoney/plugin-safetywing"
+        }
+      },
+      "secondary": {
+        "label": "Country map",
+        "action": {
+          "type": "navigate",
+          "href": "https://safetywing.com/nomad-care-map"
         }
       }
     }
