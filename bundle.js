@@ -131,7 +131,7 @@ function ageOptionsForPlan(planId) {
       completeMonth: age.completeMonth
     }));
   }
-  return AGE_BANDS;
+  return AGE_BANDS.filter((age) => age.id !== 'under10');
 }
 
 function availableTerms(state) {
