@@ -3,34 +3,24 @@
   "org": "wallmoney",
   "repo": "plug-safetywing",
   "name": "SafetyWing",
-  "description": "Order SafetyWing nomad insurance from Wall Money and keep your latest insurance shortcut close to the dashboard.",
-  "version": "0.1.0",
+  "description": "Choose SafetyWing nomad insurance, review country availability, collect member details, and prefill payment from Wall Money.",
+  "version": "0.2.0",
   "icon": "icon.svg",
   "bundle": "bundle.js",
   "permissions": [
-    "Open SafetyWing checkout and account links",
-    "Store the latest checkout you launched in local browser storage"
+    "Open official SafetyWing plan and country map links",
+    "Store your local SafetyWing order draft and payment status",
+    "Prefill Wall Money transfer details for the selected plan"
   ],
   "entry": "default",
   "mota": {
     "infopanel": {
-      "description": "Launch SafetyWing checkout again or open the plugin to review coverage details and your latest insurance activity.",
+      "description": "Open the plugin to review coverage details, countries, member details, and your latest insurance activity.",
       "primary": {
-        "label": "Get covered",
-        "action": {
-          "type": "payment",
-          "request": {
-            "label": "SafetyWing Nomad Insurance Essential",
-            "url": "https://safetywing.com/signup?callbackUrl=%2Fdashboard%2Fnomad-insurance%2Fpurchase&product=nomad-insurance",
-            "reference": "safetywing-essential"
-          }
-        }
-      },
-      "secondary": {
-        "label": "Open account",
+        "label": "Open plugin",
         "action": {
           "type": "navigate",
-          "href": "https://safetywing.com/dashboard"
+          "href": "/marketplace/wallmoney/plug-safetywing"
         }
       }
     }
